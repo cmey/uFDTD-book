@@ -58,37 +58,32 @@ correct.
 If we sum one-eleventh eleven times we know that the result is one,
 i.e., $1/11+1/11+1/11+1/11+1/11+1/11+1/11+1/11+1/11+1/11=1$.  But is
 that true on a computer?  Consider the C program shown in Program
-\ref{pro:oneThird}.
+\ref{pro:oneEleventh}.
 \begin{program}
-{\tt oneEleventh.c}: \index{oneThird.c@{\tt oneThird.c}}
-Test if $1/11+1/11+1/11+1/11+1/11+1/11+1/11+1/11+1/11+1/11$ equals $1$. \label{pro:oneThird}
+{\tt oneEleventh.jl}: \index{oneEleventh.jl@{\tt oneEleventh.jl}}
+Test if $1/11+1/11+1/11+1/11+1/11+1/11+1/11+1/11+1/11+1/11$ equals $1$. \label{pro:oneEleventh}
 \codemiddle
 \begin{lstlisting}
 /* Is summing 1./11. ten times == 1.0? */
-#include <stdio.h>
+function main()
+  a = 1.0 / 11.0        /*@ \label{oneEleventhA} @*/
 
-int main() {
-  float a;
-
-  a = 1.0 / 11.0;        /*@ \label{oneThirdA} @*/
-
-  if (a + a + a + a + a + a + a + a + a + a + a == 1.0) /*@ \label{oneThirdB} @*/
-    printf("Equal.\n");
+  if (a + a + a + a + a + a + a + a + a + a + a == 1.0) /*@ \label{oneEleventhB} @*/
+    println("Equal.")
   else
-    printf("Not equal.\n");
-
-  return 0;
-}
+    println("Not equal.")
+  end
+end
 \end{lstlisting}
 \end{program}
 In this program the float variable {\tt a} is set to one-eleventh.  In
-line \ref{oneThirdB} the sum of eleven {\tt a}'s is compared to one.
+line \ref{oneEleventhB} the sum of eleven {\tt a}'s is compared to one.
 If they are equal, the program prints ``Equal'' but prints ``Not
 equal'' otherwise.  The output of this program is ``Not equal.''
 Thus, to a computer (at least one running a language typically used in
 the solution of electromagnetics problems),
 the sum of one-eleventh eleven times is not equal to
-one.  It is worth noting that had line \ref{oneThirdA} been written
+one.  It is worth noting that had line \ref{oneEleventhA} been written
 {\tt a=1/11;}, {\tt a} would have been set to zero since integer math
 would be used to evaluate the division.  By using {\tt a = 1.0 /
   11.0;}, the computer uses floating-point math.
@@ -241,16 +236,19 @@ Code fragment to test if a non-zero $b$ can satisfy the equation
 $a+b=a$. \label{pro:bigSmall}
 \codemiddle
 \begin{lstlisting}
-  float a = 1.0, b = 0.5, c;
+using Printf
+function main()
+  a = 1.0
+  b = 0.5
+  c = a + b
 
-  c = a + b;
+  while c != a  /*@ \label{fragCompareA} @*/
+    b = b / 2.0
+    c = a + b
+  end
 
-  while(c != a) { /*@ \label{fragCompareA} @*/
-    b = b / 2.0;
-    c = a + b;
-  }
-
-  printf("%12g %12g %12g\n",a,b,c); /*@ \label{fragCompareB} @*/
+  @printf("%12g %12g %12g\n", a, b, c) /*@ \label{fragCompareB} @*/
+end
 \end{lstlisting}
 \end{fragment}
 Here $a$ is initialized to one while $b$ is set to one-half.  The
@@ -263,12 +261,12 @@ small, but it would never be zero and hence $a+b$ would never equal
 $a$.  However, the loop does terminate and the output of the {\tt
 printf()} statement in line \ref{fragCompareB} is:
 \begin{code}
-           1   5.96046e-08   1
+           1   1.11022e-16   1
 \end{code}
 This shows that both $a$ and $c$ are unity while $b$ has a value of 
-$5.96046\times10^{-8}$.  Note that this value of $b$ corresponds to
-$1\times 2^{-24}$.  When $b$ has this value, the exponents of $a$ and $b$
-differ by more than $23$ ($a$ is $1\times 2^0$).
+$1.11022\times10^{-16}$.  Note that this value of $b$ corresponds to
+$1\times 2^{-53}$.  When $b$ has this value, the exponents of $a$ and $b$
+differ by more than $52$ ($a$ is $1\times 2^0$).
 
 One more example serves to illustrate the less-than-obvious ways in
 which finite precision can corrupt a calculation.  Assume the variable
@@ -288,25 +286,20 @@ times. \label{pro:squareRoot}
 \codemiddle
 \begin{lstlisting}
 /* Square-root test. */
-#include <math.h>  // needed for sqrt()
-#include <stdio.h>
+const COUNT = 23
 
-#define COUNT 23
+function main()
+  a = 2.0f0      # 32bit float literal
+  for i = 1:COUNT
+    a = sqrt(a)  # square root of a
+  end
 
-int main() {
-  float a = 2.0;
-  int i;
+  for i = 1:COUNT
+    a = a * a     # a squared
+  end
 
-  for (i = 0; i < COUNT; i++)
-    a = sqrt(a);  // square root of a
-
-  for (i = 0; i < COUNT; i++)
-    a = a * a;      // a squared
-
-  printf("%12g\n",a);
-
-  return 0;
-}
+  @printf("%12g\n", a)
+end
 \end{lstlisting}
 \end{program}
 The program output is one, i.e., the result is $a=1.0$.  Each time the
