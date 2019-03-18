@@ -1,6 +1,6 @@
 /* Function to implement a first-order ABC. */
 
-#include "fdtd3.h"
+#include "fdtd4.h"
 #include <math.h>
 
 static int initDone = 0;

@@ -1,7 +1,7 @@
 /* FDTD simulation where main() is primarily used to call other
  * functions that perform the necessary operations. */
 
-#include "fdtd3.h"
+#include "fdtd4.h"
 
 int main()
 {

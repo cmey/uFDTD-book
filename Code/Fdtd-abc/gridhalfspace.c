@@ -1,6 +1,6 @@
 /* Function to initialize the Grid structure. */
 
-#include "fdtd3.h"
+#include "fdtd4.h"
 
 #define EPSR 9.0
 
